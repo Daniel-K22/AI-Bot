@@ -10,25 +10,25 @@ A smart Telegram bot that uses GPT-4, Whisper, and DALL·E 3 to generate text re
 
 ## 🛠 Installation  
 
-### 1️⃣ Clone the repository  
+### 1 Clone the repository  
    ```bash
    git clone https://github.com/your-username/telegram-ai-bot.git
    cd telegram-ai-bot
 ```
 
-### Install dependencies
+### 2 Install dependencies
 ```bash
 pip insatall -r  requirements.txt
 ```
 
-### Set up API keys
+### 3 Set up API keys
 Create a .env file and your credentials
 ```bash
 TELEGRAM_BOT_TOKEN = "your_telegram_token"
 OPENAI_API_KEY = "your_openai_key"
 ```
 
-### Run the bot
+### 4 Run the bot
 ```bash
 python main.py
 ```
