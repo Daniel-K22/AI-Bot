@@ -7,18 +7,18 @@ from dotenv import load_dotenv
 import aiohttp
 import ffmpeg
 
-# Загружаем API-ключи
+# Downloading API Keys
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Настройка бота
+# Setting up the bot
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher(bot)
 openai.api_key = OPENAI_API_KEY
 
 
-# Функция обработки текстовых сообщений (GPT-4)
+# Text message processing function (GPT-4)
 async def chatgpt_response(message: types.Message):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -28,7 +28,7 @@ async def chatgpt_response(message: types.Message):
     await message.reply(response["choices"][0]["message"]["content"])
 
 
-# Функция генерации изображений (DALL·E 3)
+# Image generation function (DALL·E 3)
 async def generate_image(message: types.Message):
     response = openai.Image.create(
         model="dall-e-3",
@@ -40,24 +40,24 @@ async def generate_image(message: types.Message):
     await message.reply_photo(photo=image_url, caption="Here is your image!")
 
 
-# Функция обработки голосовых сообщений (Whisper API)
+# Voice message processing function (Whisper API)
 async def transcribe_voice(message: types.Message):
     voice = await message.voice.get_file()
     file_path = f"voice_{message.from_user.id}.ogg"
 
-    # Загружаем голосовое сообщение
+    # Download voice messages
     await bot.download_file(voice.file_path, file_path)
 
-    # Конвертируем в MP3 (Whisper не принимает OGG)
+    # Convertion to MP3 (Whisper does not accept OGG)
     mp3_path = file_path.replace(".ogg", ".mp3")
     ffmpeg.input(file_path).output(mp3_path).run(overwrite_output=True)
 
-    # Отправляем в Whisper API
+    # We send to Whisper API
     with open(mp3_path, "rb") as audio_file:
         transcript = openai.Audio.transcribe(
             model="whisper-1",
             file=audio_file,
-            language="en"  # Автоопределение, но по умолчанию английский
+            language="en"  # Auto detect launguage, but default English
         )
 
     os.remove(file_path)
@@ -66,7 +66,7 @@ async def transcribe_voice(message: types.Message):
     await message.reply(f"🎤 You said: {transcript['text']}")
 
 
-# Обработчик команд
+# Command handler
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     await message.reply(
@@ -81,7 +81,7 @@ async def process_voice_message(message: types.Message):
     await transcribe_voice(message)
 
 
-# Обработчик текстовых сообщений
+# Voice message handler
 @dp.message_handler()
 async def process_text_message(message: types.Message):
     if message.text.lower().startswith("generate"):
@@ -89,7 +89,7 @@ async def process_text_message(message: types.Message):
     else:
         await chatgpt_response(message)
 
-# Запуск бота
+# Launch bot
 async def main():
     await dp.start_polling()
 
